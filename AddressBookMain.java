@@ -89,7 +89,7 @@ public class AddressBookMain {
 		Scanner sc = new Scanner(System.in);
 		AddressBookMain addressBookObject = new AddressBookMain();		
 
-		Contacts givenContact = new Contacts("Sippora" , "Toppo" , "Abc Residency" , "Ranchi" , "JHK" , 897654 , "9118282002" , "xyz.abc@gmail.com");
+		Contacts givenContact = new Contacts("Sippora" , "T." , "Abc Residency" , "Ranchi" , "JHK" , 897654 , "9118282002" , "xyz.abc@gmail.com");
 		addressBookObject.addContactToAddressBook(givenContact);				
 
 		System.out.println("1. Add Contact \n2. Edit Contact\n ");

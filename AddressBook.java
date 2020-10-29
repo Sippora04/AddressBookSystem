@@ -2,7 +2,24 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AddressBook {
+	
+	public Contacts contact;
+	public String name;
+	
+	public AddressBook (String name) {
+		this.name = name;
+	}
+	
+	public Contacts getContact() {
+		return contact;
+	}
+	
+	public void setContact(Contacts contact) {
+		this.contact = contact;
+	}
+	
 	public ArrayList<Contacts> addressBook = new ArrayList<Contacts>();
+	
 	
 	public ArrayList<Contacts> getAddressBook() {
 		return addressBook;

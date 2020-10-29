@@ -106,6 +106,6 @@ public class Contacts {
 
 	@Override
     public String toString() {
-		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber();
-    }
+		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber() + " " + this.getCity();
+	}
 }

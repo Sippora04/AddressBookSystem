@@ -1,14 +1,15 @@
 public class Contacts {
-	public String firstName;
-	public String lastName;
-	public String address;
-	public String city;
-	public String state;
-	public int zip;
-	public String phoneNumber;
-	public String email;
+	private String firstName;
+	private String lastName;
+	private String address;
+	private String city;
+	private String state;
+	private int zip;
+	private long phoneNumber;
+	private String email;
 	
-	public Contacts( String firstName, String lastName, String address, String city, String state, int zip, String phoneNumber, String email) {
+	public Contacts( String firstName, String lastName, String address, String city, String state, int zip, long phoneNumber, String email) {
+		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
@@ -18,7 +19,7 @@ public class Contacts {
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 	}
-
+	
 	public String getFirstName() {
 		return firstName;
 	}
@@ -79,12 +80,12 @@ public class Contacts {
 	}
 
 
-	public String getPhoneNumber() {
+	public long getPhoneNumber() {
 		return phoneNumber;
 	}
 
 
-	public void setPhoneNumber(String phoneNumber) {
+	public void setPhoneNumber(long phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 
@@ -105,12 +106,6 @@ public class Contacts {
 
 	@Override
     public String toString() {
-        return ("Name: " + firstName + " " + lastName + "\n" 
-        	  + "Address: " + address + "\n"
-        	  + "City: " + city + "\n"
-        	  +	"State: " + state + "\n"
-        	  + "Zip: " + zip + "\n"
-        	  + "Phone Number: " + phoneNumber + "\n"
-        	  + "Email: " + email);
+		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber();
     }
 }

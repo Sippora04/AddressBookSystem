@@ -98,14 +98,23 @@ public class Contacts {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-
-	public String getFullName() {
-		return (firstName + " " + lastName);
+	
+	@Override
+	public boolean equals (Object object) {
+		boolean result = false;
+		if(object == this) {
+			return true;
+		}
+		
+		Contacts contact = (Contacts) object;
+		if(contact.firstName.equals(this.firstName) && contact.lastName.equals(this.lastName)) {
+			result = true;
+		}
+		return result;
 	}
 
 	@Override
     public String toString() {
-		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber();
-    }
+		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber() + " " + this.getEmail();
+	}
 }

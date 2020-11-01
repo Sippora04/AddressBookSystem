@@ -2,21 +2,30 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AddressBook {
-	public ArrayList<Contacts> addressBook = new ArrayList<Contacts>();
 	
+	public String name;
+	public AddressBook (String name) {
+		this.name = name;
+	}
+	public Contacts contact;
+	public ArrayList<Contacts> addressBook = new ArrayList<Contacts>();
+	public Contacts getContact() {
+		return contact;
+	}
+	public void setContact(Contacts contact) {
+		this.contact = contact;
+	}
 	public ArrayList<Contacts> getAddressBook() {
 		return addressBook;
 	}
-	
 	public void setAddressBook(ArrayList<Contacts>addressBook) {
 		this.addressBook = addressBook;
 	}
-	
 	public void addContact(Contacts contact) {
 		addressBook.add(contact);
 	}
-	
 	public void editContact(String name) {
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 			String str = "";
 			for (Contacts contact : addressBook) {

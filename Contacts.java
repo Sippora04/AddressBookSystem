@@ -1,13 +1,4 @@
 public class Contacts {
-	private String firstName;
-	private String lastName;
-	private String address;
-	private String city;
-	private String state;
-	private int zip;
-	private long phoneNumber;
-	private String email;
-	
 	public Contacts( String firstName, String lastName, String address, String city, String state, int zip, long phoneNumber, String email) {
 		super();
 		this.firstName = firstName;
@@ -19,6 +10,15 @@ public class Contacts {
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 	}
+	
+	private String firstName;
+	private String lastName;
+	private String address;
+	private String city;
+	private String state;
+	private int zip;
+	private long phoneNumber;
+	private String email;
 	
 	public String getFirstName() {
 		return firstName;
@@ -98,14 +98,25 @@ public class Contacts {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-
-	public String getFullName() {
-		return (firstName + " " + lastName);
+	
+	@Override
+	public boolean equals (Object object) {
+		boolean result = false;
+		if(object == this) {
+			return true;
+		}
+		
+		Contacts contact = (Contacts) object;
+		if(contact.firstName.equals(this.firstName) && contact.lastName.equals(this.lastName)) {
+			result = true;
+		}
+		return result;
 	}
 
+	
+	
 	@Override
-    public String toString() {
+	public String toString() {
 		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber();
     }
 }

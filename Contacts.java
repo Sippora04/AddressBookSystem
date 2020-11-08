@@ -1,3 +1,5 @@
+package com.addressbook;
+
 public class Contacts {
 	private String firstName;
 	private String lastName;
@@ -5,11 +7,11 @@ public class Contacts {
 	private String city;
 	private String state;
 	private int zip;
-	private long phoneNumber;
+	private String phoneNumber;
 	private String email;
 	
-	public Contacts( String firstName, String lastName, String address, String city, String state, int zip, long phoneNumber, String email) {
-		super();
+	public Contacts(String firstName, String lastName, String address, String city, String state, int zip,
+			String phoneNumber, String email) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
@@ -19,6 +21,7 @@ public class Contacts {
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 	}
+	
 	
 	public String getFirstName() {
 		return firstName;
@@ -80,12 +83,12 @@ public class Contacts {
 	}
 
 
-	public long getPhoneNumber() {
+	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 
 
-	public void setPhoneNumber(long phoneNumber) {
+	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 
@@ -101,11 +104,23 @@ public class Contacts {
 
 
 	public String getFullName() {
-		return (firstName + " " + lastName);
+		return (firstName+" "+lastName);
 	}
 
+	
 	@Override
     public String toString() {
-		return this.getFirstName() + " " + this.getLastName() + " " + this.getAddress() + " " + this.getPhoneNumber();
+        return ("Name : "+firstName+" "+lastName+"\t"+"Address : "+ address+"\t"+"City : "+ city+"\t"+"State : "+state+"\t"+"Zip : "+zip+"\t"+"Phone Number : "+phoneNumber+"\t"+
+        		"Email : "+ email);
     }
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o==this)
+			return true;
+		if(!(o instanceof Contacts))
+			return false;
+		Contacts person=(Contacts)o;
+		return firstName.equals(person.firstName) && lastName.equals(person.lastName);
+	}
 }

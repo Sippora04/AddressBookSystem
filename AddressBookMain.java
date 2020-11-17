@@ -1,5 +1,6 @@
 package Abc;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonStreamParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
@@ -20,15 +24,15 @@ import java.util.Collections;
 public class AddressBookMain {
 	public static Map<String, AddressBook> addressBookMap = new HashMap<>();
 	public static Map<String, Map<String, AddressBook>> stateBookMap = new HashMap<>();
-
+	//add details
 	public void addData(Scanner input) {
 		String contactChoice, cityChoice, stateChoice;
 		do {
-			System.out.println("Enter the name of state");
+			System.out.println("Enter the Name of state");
 			String stateForMap = input.nextLine();
 
 			do {
-				System.out.println("Enter the name of city");
+				System.out.println("Enter the Name of city");
 				String cityForMap = input.nextLine();
 				AddressBook addBook = new AddressBook(cityForMap);
 				for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
@@ -59,6 +63,7 @@ public class AddressBookMain {
 							entry.getValue().addContact(c);
 							// write contact to CSV file
 							writeContactAsCSV(c);
+							writeAsJson(c);
 						}
 					}
 					System.out.println("Do you want to add contact again?");
@@ -118,7 +123,6 @@ public class AddressBookMain {
 		}
 	}
 
-	// UC9
 	public static void countPersonByCity(String city) {
 		long totalCount = 0;
 		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
@@ -128,7 +132,6 @@ public class AddressBookMain {
 		System.out.println(totalCount + " Contacts in " + city);
 	}
 
-	// UC10
 	public static void countPersonByState(String State) {
 		long totalCount = 0;
 		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
@@ -217,7 +220,6 @@ public class AddressBookMain {
 		System.out.println("Data Read Successfully");
 	}
 
-	// UC14
 	public static void writeAddressBook(Map<String, AddressBook> map) {
 		StringBuffer buffer = new StringBuffer("");
 		for (String city : map.keySet()) {
@@ -247,6 +249,7 @@ public class AddressBookMain {
 		}
 	}
 
+	// UC14
 	public static void readAddressBookCSV() {
 		try {
 			FileReader filereader = new FileReader(Paths.get("addressBook.csv").toFile());
@@ -264,9 +267,43 @@ public class AddressBookMain {
 		}
 	}
 
+	// UC15
+	public static void writeAsJson(Contact contact) {
+		Gson gson = new Gson();
+		String json = gson.toJson(contact);
+		try {
+			FileWriter writer = new FileWriter(Paths.get("addressBook.json").toFile(), true);
+			writer.write(json);
+			writer.close();
+		} catch (IOException exception) {
+			exception.printStackTrace();
+		}
+		System.out.println(json);
+	}
+
+	// UC15
+	public static void readAsJson() {
+		//String nextLine = "";
+		Gson gson = new Gson();
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(Paths.get("addressBook.json").toFile()));
+			JsonStreamParser parser = new JsonStreamParser(br);
+			while (parser.hasNext()) {
+				JsonElement element = parser.next();
+				if (element.isJsonObject()) {
+					Contact contact = gson.fromJson(element, Contact.class);
+					System.out.println(contact);
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
+
 	// main method
 	public static void main(String[] args) {
-		System.out.println("Welcome to Address Book");
+		// System.out.println("Welcome to Address Book");
 		Scanner input = new Scanner(System.in);
 		do {
 			System.out.println("1.Add a new Contact");
@@ -275,11 +312,11 @@ public class AddressBookMain {
 			int choice = input.nextInt();
 			input.nextLine();
 			switch (choice) {
-			case 1:
-				new AddressBookMain().addData(input);// Add Contact Details
+			case 1: // Add Contact Details
+				new AddressBookMain().addData(input);
 				break;
 			case 2:
-				System.out.println("Enter the name to edit contact");
+				System.out.println("Enter the Name to edit contact");
 				String editName = input.nextLine();
 				System.out.println("Enter the city");
 				String city2 = input.nextLine();
@@ -292,7 +329,7 @@ public class AddressBookMain {
 				}
 				break;
 			case 3:
-				System.out.println("Enter the name to delete");
+				System.out.println("Enter the Name to delete");
 				String deleteName = input.nextLine();
 				System.out.println("Enter the city");
 				String city1 = input.nextLine();
@@ -313,5 +350,6 @@ public class AddressBookMain {
 		writeAddressBook(addressBookMap);
 		readAddressBook();
 		readAddressBookCSV();
+		readAsJson();
 	}
 }

@@ -22,7 +22,7 @@ public class AddressBook {
 	public void addContact(Contact contact) {
 		for (int iteration = 0; iteration < addressBook.size(); iteration++) {
 			if (addressBook.get(iteration).equals(contact)) {
-				System.out.println("The person already exists!!!");
+				System.out.println("Already exists!!!");
 				return;
 			}
 		}
@@ -66,7 +66,7 @@ public class AddressBook {
 					break;
 				}
 			} else {
-				System.out.println("No such contact exist");
+				System.out.println("Not exist");
 			}
 		}
 	}

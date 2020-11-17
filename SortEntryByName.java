@@ -1,7 +1,7 @@
 package Abc;
 
 import java.util.Comparator;
-
+//sortByName
 public class SortEntryByName implements Comparator<Contact> {
 	public int compare(Contact contact1, Contact contact2) {
 		return (contact1.getFirstName() + " " + contact1.getLastName())

@@ -1,206 +1,317 @@
-package com.addressbook;
+package Abc;
 
-import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriter;
+import java.util.Collections;
 
 public class AddressBookMain {
+	public static Map<String, AddressBook> addressBookMap = new HashMap<>();
+	public static Map<String, Map<String, AddressBook>> stateBookMap = new HashMap<>();
 
-	public static final String ADRESS_BOOK_FILES = "C:\\Users\\sippo\\eclipse-workspace\\AddressBookSystem\\Person Contacts";
-	private Map<String, AddressBook> addressBookDictionary;
+	public void addData(Scanner input) {
+		String contactChoice, cityChoice, stateChoice;
+		do {
+			System.out.println("Enter the name of state");
+			String stateForMap = input.nextLine();
 
-	private Map<String, HashSet<String>> allContactsByCity;
-	private Map<String, HashSet<String>> allContactsByState;
-
-	private Map<String, Integer> countContactsByCity;
-	private Map<String, Integer> countContactsByState;
-
-	public HashSet<String> cityList = new HashSet<String>();
-	public HashSet<String> stateList = new HashSet<String>();
-
-	public AddressBookMain() {
-		initializeDictionary();		
-		allContactsByCity = new HashMap<String, HashSet<String>>();
-		allContactsByState = new HashMap<String, HashSet<String>>();
-		countContactsByCity = new HashMap<String, Integer>();
-		countContactsByState = new HashMap<String, Integer>();
+			do {
+				System.out.println("Enter the name of city");
+				String cityForMap = input.nextLine();
+				AddressBook addBook = new AddressBook(cityForMap);
+				for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+					if (entry.getKey().equals(cityForMap)) {
+						addBook = entry.getValue();
+					}
+				}
+				addressBookMap.put(cityForMap, addBook);
+				do {
+					System.out.println("Enter the details of person");
+					System.out.println("Enter the first name");
+					String firstName = input.nextLine();
+					System.out.println("Enter the last name");
+					String lastName = input.nextLine();
+					System.out.println("Enter the address");
+					String address = input.nextLine();
+					System.out.println("Enter the ZIP code");
+					int zip = input.nextInt();
+					System.out.println("Enter the phone number");
+					long phoneNumber = input.nextLong();
+					input.nextLine();
+					System.out.println("Enter the email");
+					String email = input.nextLine();
+					Contact c = new Contact(firstName, lastName, address, cityForMap, stateForMap, zip, phoneNumber,
+							email);
+					for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+						if (entry.getKey().equalsIgnoreCase(cityForMap)) {
+							entry.getValue().addContact(c);
+							// write contact to CSV file
+							writeContactAsCSV(c);
+						}
+					}
+					System.out.println("Do you want to add contact again?");
+					contactChoice = input.nextLine();
+				} while (contactChoice.equals("yes"));
+				System.out.println("Do you want to add another city");
+				cityChoice = input.nextLine();
+			} while (cityChoice.equals("yes"));
+			stateBookMap.put(stateForMap, addressBookMap);
+			System.out.println("Do you want to add for another state");
+			stateChoice = input.nextLine();
+		} while (stateChoice.equals("yes"));
 	}
-	
-	public void initializeDictionary() {
-		this.addressBookDictionary = new HashMap<String, AddressBook>();
-		Path dictionaryPath = Paths.get(ADRESS_BOOK_FILES);
-		File[] addressBookFiles=dictionaryPath.toFile().listFiles();
-		for(File file:addressBookFiles) {
-			AddressBookFileIOService fileReadObject=new AddressBookFileIOService(file.toPath());
-			this.addressBookDictionary.put(file.getName().replaceFirst("[.][^.]+$", ""), new AddressBook(fileReadObject.readData()));
+
+	public static void searchPersonByCity(String name, String city) {
+		List<Contact> list = new ArrayList<Contact>();
+		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
+			list = entries.getValue().getAddressBook().stream().filter(p -> p.getCity().equals(city))
+					.filter(p -> (p.getFirstName() + p.getLastName()).equals(name)).collect(Collectors.toList());
+		}
+		for (Contact contact : list) {
+			System.out.println(contact);
 		}
 	}
 
-	public void getAllCities() {
-		addressBookDictionary.entrySet().stream().forEach(n -> {
-			cityList.addAll(n.getValue().getCities());
-		});
+	public static void searchPersonByState(String name, String state) {
+		List<Contact> list = new ArrayList<Contact>();
+		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
+			list = entries.getValue().getAddressBook().stream().filter(p -> p.getState().equals(state))
+					.filter(p -> (p.getFirstName() + p.getLastName()).equals(name)).collect(Collectors.toList());
+		}
+		for (Contact contact : list) {
+			System.out.println(contact);
+		}
 	}
 
-	public void getAllStates() {
-		addressBookDictionary.entrySet().stream().forEach(n -> {
-			stateList.addAll(n.getValue().getStates());
-		});
+	public static void viewPersonByCity(String city) {
+		List<Contact> list = new ArrayList<Contact>();
+		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
+			list = entries.getValue().getAddressBook().stream().filter(p -> p.getCity().equals(city))
+					.collect(Collectors.toList());
+		}
+		for (Contact contact : list) {
+			System.out.println(contact);
+		}
 	}
 
-	public static void main(String[] args) {
+	public static void viewPersonByState(String state) {
+		List<Contact> list = new ArrayList<Contact>();
+		for (Map.Entry<String, Map<String, AddressBook>> entries : stateBookMap.entrySet()) {
+			if (entries.getKey().equals(state)) {
+				for (Map.Entry<String, AddressBook> Entry : addressBookMap.entrySet()) {
+					System.out.println("The List for city " + Entry.getKey() + " is :");
+					Entry.getValue().viewList();
+				}
+			}
+		}
+	}
 
-		Path addressBookPath = Paths.get(ADRESS_BOOK_FILES);
-		Scanner sc = new Scanner(System.in);
-		AddressBookMain dictionaryObject = new AddressBookMain();
-		boolean operation = true;
-		while (operation) {
-			System.out.println("1. Create AddressBook");
-			System.out.println("2. Select AddressBook");
-			System.out.println("3. Delete AddressBook");
-			System.out.println("4. Display AddressBook");
-			System.out.println("5. Display Person");
-			System.out.println("6. Exit");
-			System.out.println("Enter your choice : ");
-			int choice = sc.nextInt();
+	// UC9
+	public static void countPersonByCity(String city) {
+		long totalCount = 0;
+		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
+			long count = entries.getValue().getAddressBook().stream().filter(p -> p.getCity().equals(city)).count();
+			totalCount += count;
+		}
+		System.out.println(totalCount + " Contacts in " + city);
+	}
 
-			switch (choice) {
+	// UC10
+	public static void countPersonByState(String State) {
+		long totalCount = 0;
+		for (Map.Entry<String, AddressBook> entries : addressBookMap.entrySet()) {
+			long count = entries.getValue().getAddressBook().stream().filter(p -> p.getCity().equals(State)).count();
+			totalCount += count;
+		}
+		System.out.println(totalCount + " Contacts in " + State);
+	}
+
+	public static void sortByName() {
+		for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+			Collections.sort(entry.getValue().getAddressBook(), new SortEntryByName());
+		}
+	}
+
+	public static void sortByZip() {
+		for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+			Collections.sort(entry.getValue().getAddressBook(), new SortEntryByZip());
+		}
+	}
+
+	public static void viewContacts(Scanner input) {
+		System.out.println(
+				"1.View Person By City\n2.View Person By State\n3.Count Person By City\n4.Count Person By State\5.View Contacts in City\n6.View Contacts in State\n7.Sort By Name\n8.Sort By Zipcode\n9.Exit");
+		int option = input.nextInt();
+		input.nextLine();
+		while (option != 9) {
+			switch (option) {
 			case 1:
-				System.out.println("Enter name of Address Book: ");
-				sc.nextLine();
-				String addressBookName = sc.nextLine();
-				
-				AddressBook addressBookObjectForCreation = new AddressBook();
-				dictionaryObject.addressBookDictionary.put(addressBookName, addressBookObjectForCreation);
-
-				Path newBookPath = Paths.get(addressBookPath + "/" + addressBookName + ".txt");
-				try {
-					Files.createFile(newBookPath);
-				} catch (IOException e) {}
-
+				System.out.println("Enter the city");
+				String city = input.nextLine();
+				viewPersonByCity(city);
 				break;
 			case 2:
-				System.out.println("Enter name of Address Book: ");
-				sc.nextLine();
-				String addressBookNameToOperate = sc.nextLine();
-				AddressBook addressBookObjectForOperations = dictionaryObject.addressBookDictionary
-						.get(addressBookNameToOperate);
-				try {
-					addressBookObjectForOperations.addressBookOperations(addressBookNameToOperate);
-					System.out.println("Exited Address Book -> " + addressBookNameToOperate);
-				} catch (NullPointerException e1) {
-					System.out.println(
-							"Address Book -> " + addressBookNameToOperate + " doesn't exist in the Dictionary");
+				System.out.println("Enter the state");
+				String state = input.nextLine();
+				viewPersonByState(state);
+				break;
+			case 3:
+				System.out.println("Enter the city");
+				String City = input.nextLine();
+				countPersonByCity(City);
+				break;
+			case 4:
+				System.out.println("Enter the state");
+				String State = input.nextLine();
+				viewPersonByState(State);
+				break;
+			case 5:
+				System.out.println("Enter the city and the name");
+				String Citie = input.nextLine();
+				String name = input.next();
+				input.nextLine();
+				searchPersonByCity(name, Citie);
+				break;
+			case 6:
+				System.out.println("Enter the city and the name");
+				String States = input.nextLine();
+				String names = input.next();
+				input.nextLine();
+				searchPersonByState(names, States);
+				break;
+			case 7:
+				sortByName();
+				break;
+			case 8:
+				sortByZip();
+				break;
+			case 9:
+				break;
+			}
+		}
+	}
+
+	public static void readAddressBook() {
+		try {
+			Path path = Paths.get("./addressbook.txt");
+			List<String> lines = Files.readAllLines(path);
+			for (String line : lines) {
+				System.out.println(line);
+			}
+		} catch (IOException exception) {
+
+			exception.printStackTrace();
+		}
+		System.out.println("Data Read Successfully");
+	}
+
+	// UC14
+	public static void writeAddressBook(Map<String, AddressBook> map) {
+		StringBuffer buffer = new StringBuffer("");
+		for (String city : map.keySet()) {
+			map.get(city).getAddressBook().forEach(c -> buffer.append(c.toString().concat("\n")));
+		}
+		try {
+			Path path = Paths.get("./addressbook.txt");
+			Files.write(path, buffer.toString().getBytes());
+		} catch (IOException exception) {
+			exception.printStackTrace();
+		}
+		System.out.println("Data Written Successfully");
+	}
+
+	public static void writeContactAsCSV(Contact contact) {
+		Path path = Paths.get("addressBook.csv");
+		try {
+			FileWriter outputfile = new FileWriter(path.toFile(), true);
+			CSVWriter writer = new CSVWriter(outputfile);
+			// add data to csv
+			String[] data = contact.toString().split(",");
+			writer.writeNext(data);
+			// closing writer connection
+			writer.close();
+		} catch (IOException exception) {
+			exception.printStackTrace();
+		}
+	}
+
+	public static void readAddressBookCSV() {
+		try {
+			FileReader filereader = new FileReader(Paths.get("addressBook.csv").toFile());
+			CSVReader csvReader = new CSVReaderBuilder(filereader).build();
+			List<String[]> contactData = csvReader.readAll();
+			// print Data
+			for (String[] row : contactData) {
+				for (String cell : row) {
+					System.out.print(cell + "\t");
+				}
+				System.out.println();
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+	}
+
+	// main method
+	public static void main(String[] args) {
+		System.out.println("Welcome to Address Book");
+		Scanner input = new Scanner(System.in);
+		do {
+			System.out.println("1.Add a new Contact");
+			System.out.println("2.Edit the contact details");
+			System.out.println("3.Delete a Contact");
+			int choice = input.nextInt();
+			input.nextLine();
+			switch (choice) {
+			case 1:
+				new AddressBookMain().addData(input);// Add Contact Details
+				break;
+			case 2:
+				System.out.println("Enter the name to edit contact");
+				String editName = input.nextLine();
+				System.out.println("Enter the city");
+				String city2 = input.nextLine();
+				for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+					if (entry.getKey().equalsIgnoreCase(city2)) {
+						entry.getValue().editContact(editName);
+					} else {
+						System.out.println("The addressbook does not exist.");
+					}
 				}
 				break;
 			case 3:
-				System.out.println("Enter name of Address Book: ");
-				sc.nextLine();
-				String addressBooknameForDeletion = sc.nextLine();
-
-				if (dictionaryObject.addressBookDictionary.containsKey(addressBooknameForDeletion)) {
-					dictionaryObject.addressBookDictionary.remove(addressBooknameForDeletion);
-					Path bookPath = Paths.get(addressBookPath + "/" + addressBooknameForDeletion + ".txt");
-					File file=bookPath.toFile();
-					file.delete();
-					System.out.println("Address Book Deleted");
-					System.out.println();
-				} else {
-					System.out.println(
-							"Address Book -> " + addressBooknameForDeletion + " doesn't exist in the Dictionary");
+				System.out.println("Enter the name to delete");
+				String deleteName = input.nextLine();
+				System.out.println("Enter the city");
+				String city1 = input.nextLine();
+				for (Map.Entry<String, AddressBook> entry : addressBookMap.entrySet()) {
+					if (entry.getKey().equalsIgnoreCase(city1)) {
+						entry.getValue().deleteContact(deleteName);
+					} else {
+						System.out.println("The addressbook does not exist.");
+					}
 				}
-				break;
-			case 4:
-				System.out.print("Display All Address Book in the Dictionary (y/n) : ");
-				String option = sc.next();
-				switch (option) {
-				case "y":
-					System.out.println();
-					for (Map.Entry<String, AddressBook> dictionaryInteratorObject : dictionaryObject.addressBookDictionary
-							.entrySet()) {
-						System.out.println();
-						System.out.println("Address Book -> " + dictionaryInteratorObject.getKey());
-						dictionaryInteratorObject.getValue().displayAddressBook();
-					}
-					break;
-				case "n":
-					sc.nextLine();
-					System.out.println();
-					System.out.print("Enter name of Address Book to be displayed: ");
-					String addressBooknameForDisplay = sc.nextLine();
-					try {
-						AddressBook addressBookObjectForDisplay = dictionaryObject.addressBookDictionary
-								.get(addressBooknameForDisplay);
-						addressBookObjectForDisplay.displayAddressBook();
-						System.out.println("Address Book -> " + addressBooknameForDisplay);
-						System.out.println();
-					} catch (NullPointerException e2) {
-						System.out.println(
-								"Address Book -> " + addressBooknameForDisplay + " doesn't exist in the Dictionary");
-					}
-					break;
-				default:
-					System.out.println("Invalid choice");
-				}
-				break;
-			case 5:
-				System.out.println("1.Show by City");
-				System.out.println("2.Show by State");
-				System.out.println("3.Show Count by City");
-				System.out.println("4.Show Count by State");
-				System.out.println("Enter your choice :");
-				int showPersonChoice = sc.nextInt();
-				if (showPersonChoice == 1 || showPersonChoice == 3) {
-					dictionaryObject.getAllCities();
-					for (String city : dictionaryObject.cityList) {
-						String key = city;
-						HashSet<String> value = new HashSet<String>();
-						dictionaryObject.addressBookDictionary.entrySet().forEach(addressBookIterator -> {
-							value.addAll(addressBookIterator.getValue().searchContactByCity(key));
-						});
-						dictionaryObject.allContactsByCity.put(key, value);
-						dictionaryObject.countContactsByCity.put(key, value.size());
-					}
-					if (showPersonChoice == 1)
-						System.out.println(dictionaryObject.allContactsByCity);
-					else
-						System.out.println(dictionaryObject.countContactsByCity);
-				} else if (showPersonChoice == 2 || showPersonChoice == 4) {
-					dictionaryObject.getAllStates();
-					for (String state : dictionaryObject.stateList) {
-						String key = state;
-						HashSet<String> value = new HashSet<String>();
-						dictionaryObject.addressBookDictionary.entrySet().forEach(addressBookIterator -> {
-							value.addAll(addressBookIterator.getValue().searchContactByState(key));
-						});
-						dictionaryObject.allContactsByState.put(key, value);
-						dictionaryObject.countContactsByState.put(key, value.size());
-					}
-					if (showPersonChoice == 2)
-						System.out.println(dictionaryObject.allContactsByState);
-					else
-						System.out.println(dictionaryObject.countContactsByState);
-				} else {
-					System.out.println("Invalid choice! Can't display Person");
-				}
-				break;
-			case 6:
-				operation = false;
 				break;
 			default:
-				System.out.println("Invalid Choice");
-				System.out.println();
+				break;
 			}
-		}
-
+			System.out.println("Do you wish to continue(yes/no)?");
+		} while (input.nextLine().equals("yes"));
+		viewContacts(input);
+		writeAddressBook(addressBookMap);
+		readAddressBook();
+		readAddressBookCSV();
 	}
-
 }
